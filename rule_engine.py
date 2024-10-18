@@ -23,3 +23,24 @@ def evaluate_rule(ast_root, data):
         left_value = evaluate_rule(ast_root.left, data)
         right_value = evaluate_rule(ast_root.right, data)
         return left_value or right_value if ast_root.value == "OR" else left_value and right_value
+
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/create_rule', methods=['POST'])
+def api_create_rule():
+    rule_string = request.json['rule_string']
+    ast = create_rule(rule_string)
+    return jsonify({'message': 'Rule created successfully', 'ast': ast.__dict__})
+
+@app.route('/evaluate', methods=['POST'])
+def api_evaluate():
+    data = request.json['data']
+    ast = request.json['ast']
+    result = evaluate_rule(ast, data)
+    return jsonify({'result': result})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
